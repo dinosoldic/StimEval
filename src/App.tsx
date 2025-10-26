@@ -25,7 +25,9 @@ const App = () => {
         <MainScreen onNewConfig={() => setScreen("config")} />
       )}
 
-      {screen === "config" && <ConfigScreen />}
+      {screen === "config" && (
+        <ConfigScreen onMainScreen={() => setScreen("main")} />
+      )}
       {/* {screen === "presentation" && <PresentationScreen />} */}
     </>
   );

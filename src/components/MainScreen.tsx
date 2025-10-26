@@ -4,7 +4,7 @@ interface MainScreenProps {
 
 const MainScreen = ({ onNewConfig }: MainScreenProps) => {
   const buttonStyle =
-    "px-8 py-1 border-1 rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer";
+    "px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer";
 
   return (
     <div className="flex flex-col w-dvw h-dvh justify-center items-center gap-8">
