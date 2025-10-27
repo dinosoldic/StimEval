@@ -1,8 +1,10 @@
 interface MainScreenProps {
   onNewConfig: () => void;
+  onLoadConfig: () => void;
 }
 
-const MainScreen = ({ onNewConfig }: MainScreenProps) => {
+const MainScreen = ({ onNewConfig, onLoadConfig }: MainScreenProps) => {
+  // styles
   const buttonStyle =
     "px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer";
 
@@ -13,7 +15,9 @@ const MainScreen = ({ onNewConfig }: MainScreenProps) => {
         <button className={buttonStyle} onClick={onNewConfig}>
           New Config
         </button>
-        <button className={buttonStyle}>Load Config</button>
+        <button className={buttonStyle} onClick={onLoadConfig}>
+          Load Config
+        </button>
       </div>
     </div>
   );

@@ -1,18 +1,43 @@
 import { useState } from "react";
 import { LeftArrow } from "../constants/svgFiles";
-import { open } from "@tauri-apps/plugin-dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { saveConfig } from "./utils/ConfigManager";
 
 interface ConfigScreenProps {
   onMainScreen: () => void;
+  onPresentationScreen: () => void;
+  setSavePath: (path: string) => void;
 }
 
-const ConfigScreen = ({ onMainScreen }: ConfigScreenProps) => {
+interface DataTypes {
+  bgcolor: string;
+  imgw: number;
+  imgh: number;
+  nres: number;
+  res: string[];
+  imgpaths: string[];
+}
+
+const ConfigScreen = ({
+  onMainScreen,
+  onPresentationScreen,
+  setSavePath,
+}: ConfigScreenProps) => {
   const [bgColor, setBgColor] = useState("#ffffff"); // color
   const [imgW, setImgW] = useState(500); // width of image (px)
   const [imgH, setImgH] = useState(500); // height of image (px)
   const [nRes, setNRes] = useState(3); // n of possible responses
   const [responses, setResponses] = useState<string[]>(Array(nRes).fill("")); // array to store response texts
   const [imgPaths, setImgPaths] = useState<string[]>([]);
+
+  const [data, setData] = useState<DataTypes>({
+    bgcolor: "",
+    imgw: 0,
+    imgh: 0,
+    nres: 0,
+    res: [],
+    imgpaths: [],
+  });
 
   //// handle change of w and h
   // temporary string state for controlled input
@@ -61,11 +86,68 @@ const ConfigScreen = ({ onMainScreen }: ConfigScreenProps) => {
   const selectFiles = async () => {
     const selected = await open({
       multiple: true,
-      filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", "gif"] }],
+      filters: [
+        {
+          name: "Images",
+          extensions: [
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "bmp",
+            "webp",
+            "tiff",
+            "svg",
+          ],
+        },
+      ],
     });
     if (selected) setImgPaths(selected);
   };
-  console.log(imgPaths); // array of full file paths
+
+  const handleSubmit = async () => {
+    const newData = {
+      bgcolor: bgColor,
+      imgw: imgW,
+      imgh: imgH,
+      nres: nRes,
+      res: responses,
+      imgpaths: imgPaths,
+    };
+
+    // Check if any value is empty
+    if (
+      Object.values(newData).some(
+        (v) => v == null || v === "" || (Array.isArray(v) && !v.length)
+      )
+    ) {
+      alert("All fields must be filled");
+      return;
+    }
+
+    setData(newData); // needs to go after so that alert doesnt trigger false pos
+
+    const yymmdd = new Date().toISOString().split("T")[0];
+    const hhmm = new Date()
+      .toISOString()
+      .split("T")[1]
+      .split(".")[0]
+      .split(":")
+      .join("-");
+
+    const savepath = await save({
+      filters: [{ name: "JSON", extensions: ["json"] }],
+      defaultPath: `${yymmdd}-${hhmm}-evalemo.config.json`,
+    });
+
+    if (!savepath) return;
+
+    setSavePath(savepath); // for shared state
+
+    await saveConfig(data, savepath);
+
+    onPresentationScreen();
+  };
 
   //// styles
   const inputBoxStyles = "flex justify-between gap-8 mb-4";
@@ -177,8 +259,11 @@ const ConfigScreen = ({ onMainScreen }: ConfigScreenProps) => {
 
         {/* Save Button */}
         <div className="flex justify-center">
-          <button className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer">
-            Save Coniguration
+          <button
+            className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer"
+            onClick={handleSubmit}
+          >
+            Save & Run
           </button>
         </div>
       </div>

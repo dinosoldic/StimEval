@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { ConfigScreen, MainScreen } from "./components";
+import { ConfigScreen, MainScreen, PresentationScreen } from "./components";
 
 const App = () => {
   const [screen, setScreen] = useState<"main" | "config" | "presentation">(
     "main"
   );
+  const [savePath, setSavePath] = useState<string>(""); // TO pass path from config to session
 
   useEffect(() => {
     if (screen !== "main") {
@@ -22,13 +23,25 @@ const App = () => {
   return (
     <>
       {screen === "main" && (
-        <MainScreen onNewConfig={() => setScreen("config")} />
+        <MainScreen
+          onNewConfig={() => setScreen("config")}
+          onLoadConfig={() => setScreen("presentation")}
+        />
       )}
 
       {screen === "config" && (
-        <ConfigScreen onMainScreen={() => setScreen("main")} />
+        <ConfigScreen
+          onMainScreen={() => setScreen("main")}
+          onPresentationScreen={() => setScreen("presentation")}
+          setSavePath={setSavePath}
+        />
       )}
-      {/* {screen === "presentation" && <PresentationScreen />} */}
+      {screen === "presentation" && (
+        <PresentationScreen
+          onMainScreen={() => setScreen("main")}
+          savePath={savePath}
+        />
+      )}
     </>
   );
 };
