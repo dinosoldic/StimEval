@@ -13,6 +13,7 @@ dist/
 dist-ssr/
 .vite/                # Vite cache
 src-tauri/target/     # Rust build output
+target/
 
 # Local env files
 *.local
@@ -31,4 +32,8 @@ src-tauri/target/     # Rust build output
 *.sw?
 
 # Tauri / Cargo
-Cargo.lock            
+src-tauri/.cargo/
+src-tauri/.tauri-build/ # sometimes created during builds
+
+# OS / Misc
+Thumbs.db

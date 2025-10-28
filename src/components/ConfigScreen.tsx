@@ -9,15 +9,6 @@ interface ConfigScreenProps {
   setSavePath: (path: string) => void;
 }
 
-interface DataTypes {
-  bgcolor: string;
-  imgw: number;
-  imgh: number;
-  nres: number;
-  res: string[];
-  imgpaths: string[];
-}
-
 const ConfigScreen = ({
   onMainScreen,
   onPresentationScreen,
@@ -29,15 +20,6 @@ const ConfigScreen = ({
   const [nRes, setNRes] = useState(3); // n of possible responses
   const [responses, setResponses] = useState<string[]>(Array(nRes).fill("")); // array to store response texts
   const [imgPaths, setImgPaths] = useState<string[]>([]);
-
-  const [data, setData] = useState<DataTypes>({
-    bgcolor: "",
-    imgw: 0,
-    imgh: 0,
-    nres: 0,
-    res: [],
-    imgpaths: [],
-  });
 
   //// handle change of w and h
   // temporary string state for controlled input
@@ -106,7 +88,7 @@ const ConfigScreen = ({
   };
 
   const handleSubmit = async () => {
-    const newData = {
+    const data = {
       bgcolor: bgColor,
       imgw: imgW,
       imgh: imgH,
@@ -117,15 +99,13 @@ const ConfigScreen = ({
 
     // Check if any value is empty
     if (
-      Object.values(newData).some(
+      Object.values(data).some(
         (v) => v == null || v === "" || (Array.isArray(v) && !v.length)
       )
     ) {
       alert("All fields must be filled");
       return;
     }
-
-    setData(newData); // needs to go after so that alert doesnt trigger false pos
 
     const yymmdd = new Date().toISOString().split("T")[0];
     const hhmm = new Date()
