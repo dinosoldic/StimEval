@@ -17,15 +17,22 @@ const ConfigScreen = ({
   const [bgColor, setBgColor] = useState("#ffffff"); // color
   const [imgW, setImgW] = useState(500); // width of image (px)
   const [imgH, setImgH] = useState(500); // height of image (px)
-  const [nRes, setNRes] = useState(3); // n of possible responses
-  const [responses, setResponses] = useState<string[]>(Array(nRes).fill("")); // array to store response texts
+  const [nResVal, setNResVal] = useState(3); // n of possible responses valence
+  const [nResAro, setNResAro] = useState(3); // n of possible responses arousal
+  const [responsesVal, setResponsesVal] = useState<string[]>(
+    Array(nResVal).fill("")
+  ); // array to store response valence
+  const [responsesAro, setResponsesAro] = useState<string[]>(
+    Array(nResAro).fill("")
+  ); // array to store response arousal
   const [imgPaths, setImgPaths] = useState<string[]>([]);
 
   //// handle change of w and h
   // temporary string state for controlled input
   const [imgWInput, setImgWInput] = useState(imgW.toString());
   const [imgHInput, setImgHInput] = useState(imgH.toString());
-  const [resInput, setResInput] = useState(nRes.toString());
+  const [resInputVal, setResInputVal] = useState(nResVal.toString());
+  const [resInputAro, setResInputAro] = useState(nResAro.toString());
 
   const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -41,15 +48,15 @@ const ConfigScreen = ({
     if (!isNaN(num)) setImgH(num);
   };
 
-  const handleNResChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNResValChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setResInput(val);
+    setResInputVal(val);
     const num = Number(val);
     if (!isNaN(num)) {
-      setNRes(num);
+      setNResVal(num);
 
       // resize responses array dynamically
-      setResponses((prev) => {
+      setResponsesVal((prev) => {
         if (num > prev.length)
           return [...prev, ...Array(num - prev.length).fill("")];
         else return prev.slice(0, num);
@@ -57,8 +64,32 @@ const ConfigScreen = ({
     }
   };
 
-  const handleResponseChange = (index: number, value: string) => {
-    setResponses((prev) => {
+  const handleResponseValChange = (index: number, value: string) => {
+    setResponsesVal((prev) => {
+      const newArr = [...prev];
+      newArr[index] = value;
+      return newArr;
+    });
+  };
+
+  const handleNResAroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setResInputAro(val);
+    const num = Number(val);
+    if (!isNaN(num)) {
+      setNResAro(num);
+
+      // resize responses array dynamically
+      setResponsesAro((prev) => {
+        if (num > prev.length)
+          return [...prev, ...Array(num - prev.length).fill("")];
+        else return prev.slice(0, num);
+      });
+    }
+  };
+
+  const handleResponseAroChange = (index: number, value: string) => {
+    setResponsesAro((prev) => {
       const newArr = [...prev];
       newArr[index] = value;
       return newArr;
@@ -92,8 +123,10 @@ const ConfigScreen = ({
       bgcolor: bgColor,
       imgw: imgW,
       imgh: imgH,
-      nres: nRes,
-      res: responses,
+      nresval: nResVal,
+      nresaro: nResAro,
+      resval: responsesVal,
+      resaro: responsesAro,
       imgpaths: imgPaths,
     };
 
@@ -188,18 +221,20 @@ const ConfigScreen = ({
         {/* Allowed responses to imgs */}
         <div className={`${inputBoxStyles} flex-col`}>
           <div>
-            <h3 className={inputTitleStyles}>Amount of Responses</h3>
+            <h3 className={inputTitleStyles}>
+              Amount of Responses for Valence
+            </h3>
             <input
               type="number"
               id="nRes"
               name="nRes"
               className="w-20"
-              value={resInput}
-              onChange={handleNResChange}
+              value={resInputVal}
+              onChange={handleNResValChange}
             />
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {responses.map((resp, i) => (
+            {responsesVal.map((resp, i) => (
               <input
                 key={i}
                 type="text"
@@ -208,7 +243,40 @@ const ConfigScreen = ({
                 className="border rounded p-1 w-40 xl:w-60"
                 placeholder={`Response ${i + 1}`}
                 value={resp}
-                onChange={(e) => handleResponseChange(i, e.target.value)}
+                onChange={(e) => handleResponseValChange(i, e.target.value)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className={divider} />
+
+        {/* Allowed responses to imgs */}
+        <div className={`${inputBoxStyles} flex-col`}>
+          <div>
+            <h3 className={inputTitleStyles}>
+              Amount of Responses for Arousal
+            </h3>
+            <input
+              type="number"
+              id="nRes"
+              name="nRes"
+              className="w-20"
+              value={resInputAro}
+              onChange={handleNResAroChange}
+            />
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {responsesAro.map((resp, i) => (
+              <input
+                key={i}
+                type="text"
+                id={`Response ${i + 1}`}
+                name={`Response ${i + 1}`}
+                className="border rounded p-1 w-40 xl:w-60"
+                placeholder={`Response ${i + 1}`}
+                value={resp}
+                onChange={(e) => handleResponseAroChange(i, e.target.value)}
               />
             ))}
           </div>
