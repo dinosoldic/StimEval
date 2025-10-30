@@ -13,6 +13,7 @@ dist/
 dist-ssr/
 .vite/                # Vite cache
 src-tauri/target/     # Rust build output
+src-tauri/gen/schemas
 target/
 
 # Local env files

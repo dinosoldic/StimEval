@@ -12,11 +12,18 @@ export interface ConfigData {
   bgcolor: string;
   imgw: number;
   imgh: number;
-  nresval: number;
-  nresaro: number;
-  resval: string[];
-  resaro: string[];
+  nres: number;
+  responses: {
+    name: string;
+    n: number;
+    res: string[];
+  }[];
   imgpaths: string[];
+}
+
+export interface UserResponses {
+  image: string;
+  res: { name: string; val: string }[];
 }
 
 function getMimeType(path: string): string {
@@ -50,6 +57,11 @@ function getMimeType(path: string): string {
 }
 
 export async function saveConfig(data: ConfigData, savepath: string) {
+  // Ensure filename ends with -stimeval.config.json
+  if (!savepath.endsWith("-stimeval.config.json")) {
+    savepath = savepath.replace(/\.json$/, "") + "-stimeval.config.json";
+  }
+
   const file = await create(savepath);
   await file.write(new TextEncoder().encode(JSON.stringify(data, null, 2)));
   await file.close();
@@ -101,26 +113,17 @@ export async function loadImage(path: string) {
 
 export async function saveData(
   savePath: string | null,
-  imgNames: string[] | undefined,
-  valRes: string[],
-  aroRes: string[]
+  userRes: UserResponses[]
 ) {
   if (!savePath) {
     return;
   }
 
-  if (!imgNames) {
-    console.error("No image names provided");
-    return;
-  }
-
-  const maxLen = Math.max(imgNames.length, valRes.length, aroRes.length);
-
   // Build row-wise CSV
-  const csvRows = [["image", "val", "aro"]];
-  for (let i = 0; i < maxLen; i++) {
-    csvRows.push([imgNames[i] ?? "", valRes[i] ?? "", aroRes[i] ?? ""]);
-  }
+  const csvRows = [["Image", ...userRes[0].res.map((r) => r.name)]];
+  userRes.forEach((imgRes) => {
+    csvRows.push([imgRes.image, ...imgRes.res.map((r) => r.val)]);
+  });
 
   const csvContent = csvRows.map((row) => row.join(",")).join("\n");
 

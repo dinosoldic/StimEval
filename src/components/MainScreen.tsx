@@ -10,7 +10,7 @@ const MainScreen = ({ onNewConfig, onLoadConfig }: MainScreenProps) => {
 
   return (
     <div className="flex flex-col w-dvw h-dvh justify-center items-center gap-8">
-      <h1 className="text-2xl font-medium">Welcome to EvalEmo 2.0</h1>
+      <h1 className="text-2xl font-medium">Welcome to StimEval</h1>
       <div className="flex w-1/2 gap-4 justify-center">
         <button className={buttonStyle} onClick={onNewConfig}>
           New Config
