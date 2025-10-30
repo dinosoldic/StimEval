@@ -1,17 +1,38 @@
 import { useState } from "react";
+import { LeftArrow } from "../constants/svgFiles";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { saveConfig } from "./utils/ConfigManager";
 
-const ConfigScreen = () => {
+interface ConfigScreenProps {
+  onMainScreen: () => void;
+  onPresentationScreen: () => void;
+  setSavePath: (path: string) => void;
+}
+
+const ConfigScreen = ({
+  onMainScreen,
+  onPresentationScreen,
+  setSavePath,
+}: ConfigScreenProps) => {
   const [bgColor, setBgColor] = useState("#ffffff"); // color
   const [imgW, setImgW] = useState(500); // width of image (px)
   const [imgH, setImgH] = useState(500); // height of image (px)
-  const [nRes, setNRes] = useState(3); // n of possible responses
-  const [responses, setResponses] = useState<string[]>(Array(nRes).fill("")); // array to store response texts
+  const [nResVal, setNResVal] = useState(3); // n of possible responses valence
+  const [nResAro, setNResAro] = useState(3); // n of possible responses arousal
+  const [responsesVal, setResponsesVal] = useState<string[]>(
+    Array(nResVal).fill("")
+  ); // array to store response valence
+  const [responsesAro, setResponsesAro] = useState<string[]>(
+    Array(nResAro).fill("")
+  ); // array to store response arousal
+  const [imgPaths, setImgPaths] = useState<string[]>([]);
 
   //// handle change of w and h
   // temporary string state for controlled input
   const [imgWInput, setImgWInput] = useState(imgW.toString());
   const [imgHInput, setImgHInput] = useState(imgH.toString());
-  const [resInput, setResInput] = useState(nRes.toString());
+  const [resInputVal, setResInputVal] = useState(nResVal.toString());
+  const [resInputAro, setResInputAro] = useState(nResAro.toString());
 
   const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -27,15 +48,15 @@ const ConfigScreen = () => {
     if (!isNaN(num)) setImgH(num);
   };
 
-  const handleNResChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNResValChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setResInput(val);
+    setResInputVal(val);
     const num = Number(val);
     if (!isNaN(num)) {
-      setNRes(num);
+      setNResVal(num);
 
       // resize responses array dynamically
-      setResponses((prev) => {
+      setResponsesVal((prev) => {
         if (num > prev.length)
           return [...prev, ...Array(num - prev.length).fill("")];
         else return prev.slice(0, num);
@@ -43,12 +64,102 @@ const ConfigScreen = () => {
     }
   };
 
-  const handleResponseChange = (index: number, value: string) => {
-    setResponses((prev) => {
+  const handleResponseValChange = (index: number, value: string) => {
+    setResponsesVal((prev) => {
       const newArr = [...prev];
       newArr[index] = value;
       return newArr;
     });
+  };
+
+  const handleNResAroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setResInputAro(val);
+    const num = Number(val);
+    if (!isNaN(num)) {
+      setNResAro(num);
+
+      // resize responses array dynamically
+      setResponsesAro((prev) => {
+        if (num > prev.length)
+          return [...prev, ...Array(num - prev.length).fill("")];
+        else return prev.slice(0, num);
+      });
+    }
+  };
+
+  const handleResponseAroChange = (index: number, value: string) => {
+    setResponsesAro((prev) => {
+      const newArr = [...prev];
+      newArr[index] = value;
+      return newArr;
+    });
+  };
+
+  const selectFiles = async () => {
+    const selected = await open({
+      multiple: true,
+      filters: [
+        {
+          name: "Images",
+          extensions: [
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "bmp",
+            "webp",
+            "tiff",
+            "svg",
+          ],
+        },
+      ],
+    });
+    if (selected) setImgPaths(selected);
+  };
+
+  const handleSubmit = async () => {
+    const data = {
+      bgcolor: bgColor,
+      imgw: imgW,
+      imgh: imgH,
+      nresval: nResVal,
+      nresaro: nResAro,
+      resval: responsesVal,
+      resaro: responsesAro,
+      imgpaths: imgPaths,
+    };
+
+    // Check if any value is empty
+    if (
+      Object.values(data).some(
+        (v) => v == null || v === "" || (Array.isArray(v) && !v.length)
+      )
+    ) {
+      alert("All fields must be filled");
+      return;
+    }
+
+    const yymmdd = new Date().toISOString().split("T")[0];
+    const hhmm = new Date()
+      .toISOString()
+      .split("T")[1]
+      .split(".")[0]
+      .split(":")
+      .join("-");
+
+    const savepath = await save({
+      filters: [{ name: "JSON", extensions: ["json"] }],
+      defaultPath: `${yymmdd}-${hhmm}-evalemo.config.json`,
+    });
+
+    if (!savepath) return;
+
+    setSavePath(savepath); // for shared state
+
+    await saveConfig(data, savepath);
+
+    onPresentationScreen();
   };
 
   //// styles
@@ -60,6 +171,13 @@ const ConfigScreen = () => {
     <div className="flex flex-col w-dvw h-dvh items-center gap-8">
       <h2 className="mt-8 text-2xl font-medium">EvalEmo Configuration</h2>
       <div className="flex flex-col my-4 p-4 w-7/10 h-full gap-8">
+        <div
+          className="flex items-center gap-2 cursor-pointer font-semibold"
+          onClick={onMainScreen}
+        >
+          <LeftArrow className="w-4 h-4 text-gray-800" />
+          <p>Return to Menu</p>
+        </div>
         <div className={inputBoxStyles}>
           {/* Screen bg color */}
           <div>
@@ -103,27 +221,62 @@ const ConfigScreen = () => {
         {/* Allowed responses to imgs */}
         <div className={`${inputBoxStyles} flex-col`}>
           <div>
-            <h3 className={inputTitleStyles}>Amount of Responses</h3>
+            <h3 className={inputTitleStyles}>
+              Amount of Responses for Valence
+            </h3>
             <input
               type="number"
               id="nRes"
               name="nRes"
               className="w-20"
-              value={resInput}
-              onChange={handleNResChange}
+              value={resInputVal}
+              onChange={handleNResValChange}
             />
           </div>
-          <div className="grid grid-cols-4 gap-4">
-            {responses.map((resp, i) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {responsesVal.map((resp, i) => (
               <input
                 key={i}
                 type="text"
                 id={`Response ${i + 1}`}
                 name={`Response ${i + 1}`}
-                className="border rounded p-1 w-60"
+                className="border rounded p-1 w-40 xl:w-60"
                 placeholder={`Response ${i + 1}`}
                 value={resp}
-                onChange={(e) => handleResponseChange(i, e.target.value)}
+                onChange={(e) => handleResponseValChange(i, e.target.value)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className={divider} />
+
+        {/* Allowed responses to imgs */}
+        <div className={`${inputBoxStyles} flex-col`}>
+          <div>
+            <h3 className={inputTitleStyles}>
+              Amount of Responses for Arousal
+            </h3>
+            <input
+              type="number"
+              id="nRes"
+              name="nRes"
+              className="w-20"
+              value={resInputAro}
+              onChange={handleNResAroChange}
+            />
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {responsesAro.map((resp, i) => (
+              <input
+                key={i}
+                type="text"
+                id={`Response ${i + 1}`}
+                name={`Response ${i + 1}`}
+                className="border rounded p-1 w-40 xl:w-60"
+                placeholder={`Response ${i + 1}`}
+                value={resp}
+                onChange={(e) => handleResponseAroChange(i, e.target.value)}
               />
             ))}
           </div>
@@ -135,19 +288,31 @@ const ConfigScreen = () => {
         <div className={`${inputBoxStyles} flex-col`}>
           <div>
             <h3 className={inputTitleStyles}>Amount of Responses</h3>
-            <input
-              type="file"
-              id="imgPaths"
-              name="imgPaths"
-              accept="image/*"
-              multiple
-              className="w-60"
-            />
+            <button
+              onClick={selectFiles}
+              className="w-40 p-2 border border-gray-300 rounded-md cursor-pointer"
+            >
+              Select Images
+            </button>
           </div>
           <textarea
-            className="w-200 min-h-20 max-h-40 p-2 border border-gray-300 rounded-md resize-y"
+            className="sm:w-100 lg:w-200 min-h-25 max-h-40 p-2 border border-gray-300 rounded-md resize-y"
             placeholder="No images selected"
+            value={imgPaths
+              .map((path) => path.split(/[/\\]/).pop()) // split by / or \ and take last part
+              .join("\n")}
+            readOnly
           />
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-center">
+          <button
+            className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer"
+            onClick={handleSubmit}
+          >
+            Save & Run
+          </button>
         </div>
       </div>
     </div>
