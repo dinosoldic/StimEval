@@ -29,13 +29,25 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/icon.ico",
+      "icons/icon.png"
     ],
     "copyright": "© 2025 Dino Soldic",
     "windows": {
       "nsis": {
         "installerHooks": "./installation/windows/hooks.nsh",
         "installMode": "perMachine"
+      }
+    },
+    "macOS": {
+      "dmg": {}
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libgtk-3-0", "libayatana-appindicator3-1", "librsvg2-2"]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
       }
     }
   }
