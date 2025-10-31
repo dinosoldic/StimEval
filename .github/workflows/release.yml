@@ -39,3 +39,5 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "StimEval ${{ github.ref_name }}"
           includeDebug: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
