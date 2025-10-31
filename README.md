@@ -1,7 +1,7 @@
 # StimEval
 
-**StimEval** is a cross-platform application for the presentation and evaluation of emotional stimuli, inspired by the *EvalEmo* software developed by Lis Carretié and collaborators.  
-It allows researchers to display images, sounds, or videos and collect subjective ratings of emotional or cognitive responses in a controlled environment.
+**StimEval** is a cross-platform application for the presentation and evaluation of emotional stimuli.  
+It allows researchers to display images and collect subjective ratings of emotional or cognitive responses in a controlled environment.
 
 Built with [Tauri](https://tauri.app), [React](https://react.dev), and [Rust](https://www.rust-lang.org/), StimEval is lightweight, privacy-friendly, and runs natively on all major operating systems.
 
