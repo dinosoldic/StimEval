@@ -181,7 +181,7 @@ const PresentationScreen = ({
           ) : (
             <Loader />
           )}
-          <div className="flex flex-col absolute bottom-8 left-1/2 transform -translate-x-1/2 justify-center w-4/5 gap-8">
+          <div className="flex flex-col absolute bottom-8 left-1/2 transform -translate-x-1/2 justify-center w-9/10 gap-8">
             <div className="flex w-full justify-center text-2xl font-semibold">
               {config?.responses[currentGroupIndex].name}
             </div>
