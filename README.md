@@ -24,7 +24,7 @@ If any link is unavailable, check the [latest release page](https://github.com/D
 
 ## Features
 
-- Presentation of visual, auditory, or video stimuli  
+- Presentation of visual stimuli  
 - Customizable rating scales and response options  
 - Local data saving (no internet connection required)  
 - Minimal, focused interface for lab and classroom use  
