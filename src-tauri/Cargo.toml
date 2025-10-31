@@ -1,7 +1,7 @@
 [package]
 name = "StimEval"
 version = "1.0.0"
-description = "A Tauri App"
+description = "An app built for stimuli presentation and evaluation"
 authors = ["Dino Soldic"]
 edition = "2021"
 

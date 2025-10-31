@@ -19,6 +19,7 @@ export interface ConfigData {
     res: string[];
   }[];
   imgpaths: string[];
+  rand: boolean;
 }
 
 export interface UserResponses {

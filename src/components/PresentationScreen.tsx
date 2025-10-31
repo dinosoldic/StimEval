@@ -22,6 +22,7 @@ const PresentationScreen = ({
   const [config, setConfig] = useState<ConfigData | null>(null);
   const [pathForSave, setPathForSave] = useState<string | null>(savePath);
   const [images, setImages] = useState<string[]>([]);
+  const [imgNames, setImgNames] = useState<string[]>([]);
   const [imgIdx, setImgIdx] = useState<number>(0);
 
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
@@ -37,14 +38,35 @@ const PresentationScreen = ({
         return;
       }
 
-      // Load all images
-      const res = await Promise.all(
-        response.config.imgpaths.map((path) => loadImage(path))
+      const paths = response.config.imgpaths;
+      let shuffledPaths = paths;
+
+      if (response.config.rand) {
+        // shuffle paths
+        const indices = Array.from({ length: paths.length }, (_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        shuffledPaths = indices.map((i) => paths[i]);
+      }
+
+      // load images as base64
+      const loadedImages = await Promise.all(
+        shuffledPaths.map((p) => loadImage(p))
       );
 
+      // extract names from shuffled paths
+      const names = shuffledPaths.map((path) => {
+        const parts = path.split(/[\\/]/);
+        const filename = parts[parts.length - 1];
+        return filename.replace(/\.[^/.]+$/, "");
+      });
+
+      setImages(loadedImages);
+      setImgNames(names);
       setConfig(response.config);
       setPathForSave(response.dirPath);
-      setImages(res);
 
       // Prompt user for a string (e.g., a session name)
       const path = await save({
@@ -64,16 +86,6 @@ const PresentationScreen = ({
 
     fetchConfig();
   }, [savePath]);
-
-  const imgNames = config?.imgpaths.map((path) => {
-    // Extract the filename from path
-    const parts = path.split(/[\\/]/); // splits on / or \
-    const filename = parts[parts.length - 1];
-
-    // Remove extension
-    const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
-    return nameWithoutExt;
-  });
 
   const handleResponseClick = async (groupName: string, val: string) => {
     if (!config) return;
@@ -121,8 +133,6 @@ const PresentationScreen = ({
     }
   };
 
-  console.log(userResponses);
-
   // styles
   const buttonStyle =
     "w-50 px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer";
@@ -148,7 +158,10 @@ const PresentationScreen = ({
           ) : (
             <Loader />
           )}
-          <div className="flex absolute bottom-8 left-1/2 transform -translate-x-1/2 justify-center w-4/5">
+          <div className="flex flex-col absolute bottom-8 left-1/2 transform -translate-x-1/2 justify-center w-4/5 gap-8">
+            <div className="flex w-full justify-center text-2xl font-semibold">
+              {config?.responses[currentGroupIndex].name}
+            </div>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 w-full justify-items-center">
               {config &&
                 imgIdx < config.imgpaths.length &&
@@ -161,7 +174,7 @@ const PresentationScreen = ({
                         config.responses[currentGroupIndex].name,
                         String(i)
                       )
-                    } // or r if you want the string
+                    }
                   >
                     {r}
                   </button>

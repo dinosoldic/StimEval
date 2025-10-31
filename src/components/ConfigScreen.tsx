@@ -34,6 +34,7 @@ const ConfigScreen = ({
     defaultResponse,
   ]); // store user res
   const [imgPaths, setImgPaths] = useState<string[]>([]); // store loaded imgs
+  const [randomize, setRandomize] = useState<boolean>(false);
 
   //// handle change
   // temporary string state for controlled input
@@ -61,16 +62,7 @@ const ConfigScreen = ({
       filters: [
         {
           name: "Images",
-          extensions: [
-            "png",
-            "jpg",
-            "jpeg",
-            "gif",
-            "bmp",
-            "webp",
-            "tiff",
-            "svg",
-          ],
+          extensions: ["png", "jpg", "jpeg", "bmp", "webp"],
         },
       ],
     });
@@ -192,6 +184,7 @@ const ConfigScreen = ({
       nres: nRes,
       responses: responses,
       imgpaths: imgPaths,
+      rand: randomize,
     };
 
     // Check if any value is empty
@@ -225,8 +218,6 @@ const ConfigScreen = ({
   const inputTitleStyles = "py-1";
   const divider = "w-full h-px bg-gray-300";
 
-  console.log(responses);
-
   return (
     <div className="flex flex-col w-dvw h-dvh items-center gap-8 overflow-x-hidden">
       <h2 className="mt-8 text-2xl font-medium">StimEval Configuration</h2>
@@ -246,7 +237,7 @@ const ConfigScreen = ({
               type="color"
               id="bgColor"
               name="bgColor"
-              className="w-8 h-8 p-0 bg-transparent border-none shadow-none rounded-2xl"
+              className="w-8 h-8 p-0 bg-transparent border-none shadow-none"
               value={bgColor}
               onChange={(e) => setBgColor(e.target.value)}
             />
@@ -335,14 +326,25 @@ const ConfigScreen = ({
 
         {/* Images paths */}
         <div className={`${inputBoxStyles} flex-col`}>
-          <div>
-            <h3 className={inputTitleStyles}>Images</h3>
-            <button
-              onClick={selectFiles}
-              className="w-40 p-2 border border-gray-300 rounded-md cursor-pointer"
-            >
-              Select Images
-            </button>
+          <div className="flex gap-8">
+            <div>
+              <h3 className={inputTitleStyles}>Images</h3>
+              <div className="flex flex-row gap-4 h-fit items-center">
+                <button
+                  onClick={selectFiles}
+                  className="w-40 p-2 border border-gray-300 rounded-md cursor-pointer"
+                >
+                  Select Images
+                </button>
+                <h3 className="ml-4">Randomize</h3>
+                <input
+                  type="checkbox"
+                  checked={randomize}
+                  onChange={() => setRandomize((prev) => !prev)}
+                  className="w-6 h-6 rounded-md shadow-none accent-blue-300 cursor-pointer"
+                />
+              </div>
+            </div>
           </div>
           <textarea
             className="sm:w-100 lg:w-200 min-h-25 max-h-40 p-2 border border-gray-300 rounded-md resize-y"
