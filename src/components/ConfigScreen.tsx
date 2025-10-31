@@ -374,7 +374,7 @@ const ConfigScreen = ({
           </div>
 
           {/* Save Buttons */}
-          <div className="flex justify-center gap-8">
+          <div className="flex justify-center gap-8 pb-8">
             {showSave ? (
               <button
                 className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer"
