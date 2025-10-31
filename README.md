@@ -10,15 +10,15 @@ Built with [Tauri](https://tauri.app), [React](https://react.dev), and [Rust](ht
 ## Downloads
 
 Latest builds are available here:  
-**[StimEval Releases](https://github.com/DinoSoldic/StimEval/releases/latest)**
+**[StimEval Releases](https://github.com/dinosoldic/StimEval/releases/latest)**
 
 | Platform | File | Download |
 |-----------|------|-----------|
-| Windows | `.msi` installer | [Download](https://github.com/DinoSoldic/StimEval/releases/latest/download/StimEval_1.0.0_x64_en-US.msi) |
-| macOS (Apple Silicon) | `.dmg` image | [Download](https://github.com/DinoSoldic/StimEval/releases/latest/download/StimEval_1.0.0_aarch64.dmg) |
-| Linux | `.AppImage` package | [Download](https://github.com/DinoSoldic/StimEval/releases/latest/download/StimEval_1.0.0_amd64.AppImage) |
+| Windows | `.msi` installer | [Download](https://github.com/dinosoldic/StimEval/releases/latest/download/StimEval_1.0.0_x64_en-US.msi) |
+| macOS (Apple Silicon) | `.dmg` image | [Download](https://github.com/dinosoldic/StimEval/releases/latest/download/StimEval_1.0.0_aarch64.dmg) |
+| Linux | `.AppImage` package | [Download](https://github.com/dinosoldic/StimEval/releases/latest/download/StimEval_1.0.0_amd64.AppImage) |
 
-If any link is unavailable, check the [latest release page](https://github.com/DinoSoldic/StimEval/releases/latest) directly.
+If any link is unavailable, check the [latest release page](https://github.com/dinosoldic/StimEval/releases/latest) directly.
 
 ---
 
