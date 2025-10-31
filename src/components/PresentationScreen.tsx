@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { save, message } from "@tauri-apps/plugin-dialog";
+import { save, message, confirm } from "@tauri-apps/plugin-dialog";
 import Loader from "./utils/Loader";
 import {
   loadConfig,
@@ -11,11 +11,13 @@ import {
 
 interface PresentationScreenProps {
   onMainScreen: () => void;
+  setSavePath: (path: string) => void;
   savePath: string;
 }
 
 const PresentationScreen = ({
   onMainScreen,
+  setSavePath,
   savePath,
 }: PresentationScreenProps) => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -66,7 +68,6 @@ const PresentationScreen = ({
       setImages(loadedImages);
       setImgNames(names);
       setConfig(response.config);
-      setPathForSave(response.dirPath);
 
       // Prompt user for a string (e.g., a session name)
       const path = await save({
@@ -128,10 +129,32 @@ const PresentationScreen = ({
       } else {
         // finished all images, save results
         await saveData(pathForSave, newUserResponses);
+        setSavePath("");
         onMainScreen();
       }
     }
   };
+
+  // Listen for esc to abort experiment
+  const handleExit = async (e: KeyboardEvent) => {
+    if (e.key !== "Escape") return;
+    const doExit = await confirm(
+      "Experiment will abort and data will be lost. Are you sure?",
+      { title: "Close Experiment", kind: "warning" }
+    );
+
+    if (doExit) {
+      setSavePath("");
+      onMainScreen();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleExit);
+    return () => {
+      window.removeEventListener("keydown", handleExit);
+    };
+  }, []);
 
   // styles
   const buttonStyle =
