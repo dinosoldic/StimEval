@@ -7,18 +7,35 @@ const App = () => {
   );
   const [savePath, setSavePath] = useState<string>(""); // TO pass path from config to session
 
-  useEffect(() => {
-    if (screen !== "main") {
-      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-        e.preventDefault();
-        e.returnValue = ""; // Required for all browsers to trigger the confirmation dialog
-      };
+  // web ver
+  // useEffect(() => {
+  //   if (screen !== "main") {
+  //     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  //       e.preventDefault();
+  //       e.returnValue = ""; // Required for all browsers to trigger the confirmation dialog
+  //     };
 
-      window.addEventListener("beforeunload", handleBeforeUnload);
-      return () =>
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-    }
-  }, [screen]);
+  //     window.addEventListener("beforeunload", handleBeforeUnload);
+  //     return () =>
+  //       window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   }
+  // }, [screen]);
+
+  // dekstop ver - prevent refresh
+  useEffect(() => {
+    const disableReload = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey && e.key.toLowerCase() === "r") || // Ctrl+R / Cmd+R
+        e.key === "F5"
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    window.addEventListener("keydown", disableReload);
+    return () => window.removeEventListener("keydown", disableReload);
+  }, []);
 
   return (
     <>
@@ -39,6 +56,7 @@ const App = () => {
       {screen === "presentation" && (
         <PresentationScreen
           onMainScreen={() => setScreen("main")}
+          setSavePath={setSavePath}
           savePath={savePath}
         />
       )}
