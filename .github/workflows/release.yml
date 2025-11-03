@@ -50,6 +50,34 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "StimEval ${{ github.ref_name }}"
+          releaseBody: |
+            ## About
+            **StimEval** is an open-source experimental stimulus evaluation app developed by Dino Soldic.
+            Runs fully locally — no internet connection or data collection.
+
+            ## Safety
+            This build is unsigned but open-source. You can verify its integrity using the SHA256 checksums attached below.
+            Source code: https://github.com/dinosoldic/stimeval
+
+            ## Platforms
+            - Windows (.exe / .msi)
+            - macOS (.dmg)
+            - Linux (.AppImage / .deb)
           includeDebug: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate checksums
+        run: |
+          cd src-tauri/target/release/bundle || exit 1
+          find . -type f \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.deb" -o -name "*.msi" \) \
+            -exec sha256sum {} \; > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Upload checksums to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: src-tauri/target/release/bundle/SHA256SUMS.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
