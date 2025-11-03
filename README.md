@@ -5,7 +5,7 @@ It allows researchers to display and collect subjective ratings of responses in 
 
 Built with [Tauri](https://tauri.app), [React](https://react.dev), and [Rust](https://www.rust-lang.org/), StimEval is lightweight, privacy-friendly, and runs natively on all major operating systems.
 
-**Note** 
+**Note:** 
 This build is currently unsigned, so some operating systems may display a warning such as “Possible dangerous app” or “Unknown publisher” when launching the installer.
 This is normal for open-source software without a paid code-signing certificate.
 You can safely proceed by selecting “More info → Run anyway.”
