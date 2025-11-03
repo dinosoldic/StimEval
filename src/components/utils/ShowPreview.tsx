@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { loadImage, type ConfigData } from "./ConfigManager";
+import { loadMedia, type ConfigData } from "./ConfigManager";
 import Loader from "./Loader";
 
 interface ShowPreviewProps {
@@ -13,14 +13,14 @@ const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
 
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [showEnd, setShowEnd] = useState<boolean>(false);
-  const [images, setImages] = useState<string[]>([]);
-  const [imgIdx, setImgIdx] = useState<number>(0);
+  const [media, setMedia] = useState<string[]>([]);
+  const [mediaIdx, setMediaIdx] = useState<number>(0);
 
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 
   useEffect(() => {
     const loadPreview = async () => {
-      const paths = data.imgpaths;
+      const paths = data.mediapaths;
       let shuffledPaths = paths;
 
       if (data.rand) {
@@ -35,10 +35,10 @@ const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
 
       // load images as base64
       const loadedImages = await Promise.all(
-        shuffledPaths.map((p) => loadImage(p))
+        shuffledPaths.map((p) => loadMedia(p))
       );
 
-      setImages(loadedImages);
+      setMedia(loadedImages);
       setIsLoaded(true);
     };
 
@@ -53,9 +53,9 @@ const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
       setCurrentGroupIndex(nextGroup);
     } else {
       // finished all groups for this image
-      const nextImg = imgIdx + 1;
-      if (nextImg < data.imgpaths.length) {
-        setImgIdx(nextImg);
+      const nextImg = mediaIdx + 1;
+      if (nextImg < data.mediapaths.length) {
+        setMediaIdx(nextImg);
         setCurrentGroupIndex(0);
       } else {
         setShowEnd(true);
@@ -69,6 +69,8 @@ const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
   const optButtonStyle =
     "text-sm font-medium bg-gray-50 border rounded-md px-2 py-0 cursor-pointer hover:bg-gray-200";
 
+  console.log(media[mediaIdx]);
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
       {isLoaded ? (
@@ -81,15 +83,25 @@ const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
               height: "100dvh",
             }}
           >
-            {data && imgIdx < data.imgpaths.length ? (
+            {data && mediaIdx < data.mediapaths.length ? (
               <div
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 style={{ width: data.imgw, height: data.imgh }}
               >
-                <img
-                  className="size-full object-contain"
-                  src={images[imgIdx]}
-                />
+                {data.mediatypes[mediaIdx] === "img" ? (
+                  <img
+                    className="size-full object-contain"
+                    src={media[mediaIdx]}
+                  />
+                ) : data.mediatypes[mediaIdx] === "vid" ? (
+                  <video
+                    className="size-full object-contain"
+                    src={media[mediaIdx]}
+                    autoPlay
+                  />
+                ) : (
+                  <audio className="size-full" src={media[mediaIdx]} autoPlay />
+                )}
               </div>
             ) : (
               <Loader />
@@ -99,7 +111,7 @@ const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
                 {data.responses[currentGroupIndex].name}
               </div>
               <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 w-full justify-items-center">
-                {imgIdx < data.imgpaths.length &&
+                {mediaIdx < data.mediapaths.length &&
                   data.responses[currentGroupIndex].res.map((r, i) => (
                     <button
                       key={i}

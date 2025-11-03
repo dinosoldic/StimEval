@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LeftArrow } from "../constants/svgFiles";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { saveConfig, type ConfigData } from "./utils/ConfigManager";
@@ -21,11 +21,16 @@ const ConfigScreen = ({
   onPresentationScreen,
   setSavePath,
 }: ConfigScreenProps) => {
+  // init vars
   const defaultResponse: ResponseTypes = {
     name: "",
     n: 1,
     res: Array(1).fill(""),
-  };
+  }; //default user resp
+
+  const imageExts = ["png", "jpg", "jpeg", "webp"];
+  const videoExts = ["mp4", "webm"];
+  const audioExts = ["mp3", "wav", "ogg", "m4a"];
 
   const [bgColor, setBgColor] = useState<string>("#ffffff"); // color
   const [imgW, setImgW] = useState<number>(500); // width of image (px)
@@ -34,11 +39,12 @@ const ConfigScreen = ({
   const [responses, setResponses] = useState<ResponseTypes[]>([
     defaultResponse,
   ]); // store user res
-  const [imgPaths, setImgPaths] = useState<string[]>([]); // store loaded imgs
+  const [mediaPaths, setMediaPaths] = useState<string[]>([]); // store loaded imgs
+  const [mediaTypes, setMediaTypes] = useState<string[]>([]);
   const [randomize, setRandomize] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
-  const [showSave, setShowSave] = useState<boolean>(false);
+  const [canSave, setCanSave] = useState<boolean>(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [savedConfig, setSavedConfig] = useState<ConfigData | null>(null);
 
@@ -53,6 +59,8 @@ const ConfigScreen = ({
     setImgWInput(val); // allow typing freely
     const num = Number(val);
     if (!isNaN(num)) setImgW(num); // update numeric state only if valid
+    // reset save and force preview
+    setCanSave(false);
   };
 
   const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +68,8 @@ const ConfigScreen = ({
     setImgHInput(val);
     const num = Number(val);
     if (!isNaN(num)) setImgH(num);
+    // reset save and force preview
+    setCanSave(false);
   };
 
   const selectFiles = async () => {
@@ -67,12 +77,15 @@ const ConfigScreen = ({
       multiple: true,
       filters: [
         {
-          name: "Images",
-          extensions: ["png", "jpg", "jpeg", "bmp", "webp"],
+          name: "Media",
+          extensions: [...imageExts, ...videoExts, ...audioExts],
         },
       ],
     });
-    if (selected) setImgPaths(selected);
+    if (selected) setMediaPaths(selected);
+
+    // reset save and force preview
+    setCanSave(false);
   };
 
   const handleNResChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +110,9 @@ const ConfigScreen = ({
       }
       return prev;
     });
+
+    // reset save and force preview
+    setCanSave(false);
   };
 
   const handleNameChange = (index: number, value: string) => {
@@ -105,6 +121,9 @@ const ConfigScreen = ({
       newArr[index].name = value;
       return newArr;
     });
+
+    // reset save and force preview
+    setCanSave(false);
   };
 
   const handleNChange = (index: number, value: string) => {
@@ -119,6 +138,9 @@ const ConfigScreen = ({
       );
       return newArr;
     });
+
+    // reset save and force preview
+    setCanSave(false);
   };
 
   const handleResChange = (
@@ -131,7 +153,31 @@ const ConfigScreen = ({
       newArr[groupIndex].res[resIndex] = value;
       return newArr;
     });
+
+    // reset save and force preview
+    setCanSave(false);
   };
+
+  // set media type
+  const handleMediaTypes = async () => {
+    if (!mediaPaths || mediaPaths.length === 0) return;
+
+    const types = mediaPaths.map((path) => {
+      const ext = path.split(".").pop()?.toLowerCase() || "";
+
+      if (imageExts.includes(ext)) return "img";
+      if (videoExts.includes(ext)) return "vid";
+      if (audioExts.includes(ext)) return "aud";
+      return "unknown"; // fallback
+    });
+
+    setMediaTypes(types);
+  };
+
+  useEffect(() => {
+    if (mediaPaths.length === 0) return;
+    handleMediaTypes();
+  }, [mediaPaths]);
 
   // data validation
   const checkData = async (data: {
@@ -140,7 +186,8 @@ const ConfigScreen = ({
     imgh: number;
     nres: number;
     responses: ResponseTypes[];
-    imgpaths: string[];
+    mediapaths: string[];
+    mediatypes: string[];
   }) => {
     // Check basic fields
     if (
@@ -148,7 +195,8 @@ const ConfigScreen = ({
       !data.imgw ||
       !data.imgh ||
       !data.nres ||
-      !data.imgpaths?.length
+      !data.mediapaths?.length ||
+      !data.mediatypes?.length
     ) {
       alert("All fields must be filled");
       return false;
@@ -182,13 +230,16 @@ const ConfigScreen = ({
   };
 
   const handlePreview = async () => {
+    await handleMediaTypes();
+
     const data = {
       bgcolor: bgColor,
       imgw: imgW,
       imgh: imgH,
       nres: nRes,
       responses,
-      imgpaths: imgPaths,
+      mediapaths: mediaPaths,
+      mediatypes: mediaTypes,
       rand: randomize,
     };
 
@@ -255,7 +306,10 @@ const ConfigScreen = ({
                 name="bgColor"
                 className="w-8 h-8 p-0 bg-transparent border-none shadow-none"
                 value={bgColor}
-                onChange={(e) => setBgColor(e.target.value)}
+                onChange={(e) => {
+                  setBgColor(e.target.value);
+                  setCanSave(false);
+                }}
               />
             </div>
             {/* Image w and h */}
@@ -349,47 +403,65 @@ const ConfigScreen = ({
                 <div className="flex flex-row gap-4 h-fit items-center">
                   <button
                     onClick={selectFiles}
-                    className="w-40 p-2 border border-gray-300 rounded-md cursor-pointer"
+                    className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer"
                   >
-                    Select Images
+                    Select Stimuli
                   </button>
                   <h3 className="ml-4">Randomize</h3>
                   <input
                     type="checkbox"
                     checked={randomize}
-                    onChange={() => setRandomize((prev) => !prev)}
+                    onChange={() => {
+                      setRandomize((prev) => !prev);
+                      setCanSave(false);
+                    }}
                     className="w-6 h-6 rounded-md shadow-none accent-blue-300 cursor-pointer"
                   />
                 </div>
               </div>
             </div>
-            <textarea
-              className="sm:w-100 lg:w-200 min-h-25 max-h-40 p-2 border border-gray-300 rounded-md resize-y"
-              placeholder="No images selected"
-              value={imgPaths
-                .map((path) => path.split(/[/\\]/).pop()) // split by / or \ and take last part
-                .join("\n")}
-              readOnly
-            />
+            <div className="flex flex-col gap-1">
+              <textarea
+                className="sm:w-100 lg:w-200 min-h-25 max-h-40 p-2 border border-gray-300 rounded-md resize-y"
+                placeholder="No media selected"
+                value={mediaPaths
+                  .map((path) => path.split(/[/\\]/).pop()) // split by / or \ and take last part
+                  .join("\n")}
+                readOnly
+              />
+              {mediaPaths.length > 0 ? (
+                <button
+                  className="w-fit p-2 border border-red-400 text-red-600 rounded-md cursor-pointer"
+                  onClick={() => {
+                    setMediaPaths([]);
+                    setMediaTypes([]);
+                    setCanSave(false);
+                  }}
+                >
+                  Clear Selected Media
+                </button>
+              ) : (
+                <div className="w-1 h-10.5" />
+              )}
+            </div>
           </div>
 
           {/* Save Buttons */}
           <div className="flex justify-center gap-8 pb-8">
-            {showSave ? (
-              <button
-                className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer"
-                onClick={handleSave}
-              >
-                Save
-              </button>
-            ) : (
-              <button
-                className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer"
-                onClick={handlePreview}
-              >
-                Preview
-              </button>
-            )}
+            <button
+              className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer"
+              onClick={handlePreview}
+            >
+              Preview
+            </button>
+            <button
+              className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer
+            disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-blue-200"
+              onClick={handleSave}
+              disabled={!canSave}
+            >
+              Save
+            </button>
             <button
               className="w-fit px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer
             disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-blue-200"
@@ -405,9 +477,12 @@ const ConfigScreen = ({
         <ShowPreview
           onAccept={() => {
             setIsPreviewVisible(false);
-            setShowSave(true);
+            setCanSave(true);
           }}
-          onCancel={() => setIsPreviewVisible(false)}
+          onCancel={() => {
+            setIsPreviewVisible(false);
+            setCanSave(false);
+          }}
           data={savedConfig}
         />
       )}

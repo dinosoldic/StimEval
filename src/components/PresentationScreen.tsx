@@ -3,7 +3,7 @@ import { save, message, confirm } from "@tauri-apps/plugin-dialog";
 import Loader from "./utils/Loader";
 import {
   loadConfig,
-  loadImage,
+  loadMedia,
   saveData,
   type ConfigData,
   type UserResponses,
@@ -23,9 +23,9 @@ const PresentationScreen = ({
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [config, setConfig] = useState<ConfigData | null>(null);
   const [pathForSave, setPathForSave] = useState<string | null>(savePath);
-  const [images, setImages] = useState<string[]>([]);
-  const [imgNames, setImgNames] = useState<string[]>([]);
-  const [imgIdx, setImgIdx] = useState<number>(0);
+  const [media, setMedia] = useState<string[]>([]);
+  const [mediaNames, setMediaNames] = useState<string[]>([]);
+  const [mediaIdx, setMediaIdx] = useState<number>(0);
 
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [userResponses, setUserResponses] = useState<UserResponses[]>([]);
@@ -40,7 +40,7 @@ const PresentationScreen = ({
         return;
       }
 
-      const paths = response.config.imgpaths;
+      const paths = response.config.mediapaths;
       let shuffledPaths = paths;
 
       if (response.config.rand) {
@@ -55,7 +55,7 @@ const PresentationScreen = ({
 
       // load images as base64
       const loadedImages = await Promise.all(
-        shuffledPaths.map((p) => loadImage(p))
+        shuffledPaths.map((p) => loadMedia(p))
       );
 
       // extract names from shuffled paths
@@ -65,8 +65,8 @@ const PresentationScreen = ({
         return filename.replace(/\.[^/.]+$/, "");
       });
 
-      setImages(loadedImages);
-      setImgNames(names);
+      setMedia(loadedImages);
+      setMediaNames(names);
       setConfig(response.config);
 
       // Prompt user for a string (e.g., a session name)
@@ -91,7 +91,7 @@ const PresentationScreen = ({
   const handleResponseClick = async (groupName: string, val: string) => {
     if (!config) return;
 
-    const imgName = imgNames ? imgNames[imgIdx] : "";
+    const imgName = mediaNames ? mediaNames[mediaIdx] : "";
     const newVal = String(Number(val) + 1); // adjust idx cuz JS
 
     // Compute the new state first
@@ -122,9 +122,9 @@ const PresentationScreen = ({
       setCurrentGroupIndex(nextGroup);
     } else {
       // finished all groups for this image
-      const nextImg = imgIdx + 1;
-      if (nextImg < config.imgpaths.length) {
-        setImgIdx(nextImg);
+      const nextImg = mediaIdx + 1;
+      if (nextImg < config.mediapaths.length) {
+        setMediaIdx(nextImg);
         setCurrentGroupIndex(0);
       } else {
         // finished all images, save results
@@ -171,12 +171,25 @@ const PresentationScreen = ({
             height: "100dvh",
           }}
         >
-          {config && imgIdx < config.imgpaths.length ? (
+          {config && mediaIdx < config.mediapaths.length ? (
             <div
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
               style={{ width: config?.imgw, height: config?.imgh }}
             >
-              <img className="size-full object-contain" src={images[imgIdx]} />
+              {config.mediatypes[mediaIdx] === "img" ? (
+                <img
+                  className="size-full object-contain"
+                  src={media[mediaIdx]}
+                />
+              ) : config.mediatypes[mediaIdx] === "vid" ? (
+                <video
+                  className="size-full object-contain"
+                  src={media[mediaIdx]}
+                  autoPlay
+                />
+              ) : (
+                <audio className="size-full" src={media[mediaIdx]} autoPlay />
+              )}
             </div>
           ) : (
             <Loader />
@@ -187,7 +200,7 @@ const PresentationScreen = ({
             </div>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 w-full justify-items-center">
               {config &&
-                imgIdx < config.imgpaths.length &&
+                mediaIdx < config.mediapaths.length &&
                 config.responses[currentGroupIndex].res.map((r, i) => (
                   <button
                     key={i}

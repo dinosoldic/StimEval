@@ -18,7 +18,8 @@ export interface ConfigData {
     n: number;
     res: string[];
   }[];
-  imgpaths: string[];
+  mediapaths: string[];
+  mediatypes: string[];
   rand: boolean;
 }
 
@@ -27,9 +28,11 @@ export interface UserResponses {
   res: { name: string; val: string }[];
 }
 
+// MIME resolver
 function getMimeType(path: string): string {
   const ext = path.split(".").pop()?.toLowerCase();
   switch (ext) {
+    // Images
     case "jpg":
     case "jpeg":
       return "image/jpeg";
@@ -37,23 +40,29 @@ function getMimeType(path: string): string {
       return "image/png";
     case "gif":
       return "image/gif";
-    case "bmp":
-      return "image/bmp";
     case "webp":
       return "image/webp";
-    case "svg":
-      return "image/svg+xml";
-    case "ico":
-      return "image/x-icon";
-    case "tif":
-    case "tiff":
-      return "image/tiff";
     case "avif":
       return "image/avif";
-    case "heic":
-      return "image/heic";
+
+    // Videos
+    case "mp4":
+      return "video/mp4";
+    case "webm":
+      return "video/webm";
+
+    // Audio
+    case "mp3":
+      return "audio/mpeg";
+    case "wav":
+      return "audio/wav";
+    case "ogg":
+      return "audio/ogg";
+    case "m4a":
+      return "audio/mp4";
+
     default:
-      return "application/octet-stream"; // fallback
+      return "application/octet-stream";
   }
 }
 
@@ -93,7 +102,7 @@ export async function loadConfig(
   return { config, dirPath };
 }
 
-export async function loadImage(path: string) {
+export async function loadMedia(path: string) {
   // Read file as bytes
   const bytes = await readFile(path);
 
@@ -105,11 +114,10 @@ export async function loadImage(path: string) {
   }
   const base64String = btoa(binary);
 
-  // Infer image type from extension (optional, default to png)
-  const ext = path.split(".").pop()?.toLowerCase() || "png";
-  const mimeType = getMimeType(ext);
+  // Detect MIME type based on extension
+  const mimeType = getMimeType(path);
 
-  return `data:image/${mimeType};base64,${base64String}`;
+  return `data:${mimeType};base64,${base64String}`;
 }
 
 export async function saveData(
@@ -121,7 +129,7 @@ export async function saveData(
   }
 
   // Build row-wise CSV
-  const csvRows = [["Image", ...userRes[0].res.map((r) => r.name)]];
+  const csvRows = [["Media Name", ...userRes[0].res.map((r) => r.name)]];
   userRes.forEach((imgRes) => {
     csvRows.push([imgRes.image, ...imgRes.res.map((r) => r.val)]);
   });
