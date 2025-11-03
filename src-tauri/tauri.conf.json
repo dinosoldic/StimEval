@@ -35,7 +35,6 @@
     "copyright": "© 2025 Dino Soldic",
     "windows": {
       "nsis": {
-        "installerHooks": "./installation/windows/hooks.nsh",
         "installMode": "perMachine"
       }
     },
