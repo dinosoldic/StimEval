@@ -16,7 +16,6 @@ The app is fully open-source, and its integrity can be verified using the attach
 ## Downloads
 
 Latest builds are available here:  
-**[StimEval Releases](https://github.com/dinosoldic/StimEval/releases/latest)**
 
 | Platform | File | Download |
 |-----------|------|-----------|
