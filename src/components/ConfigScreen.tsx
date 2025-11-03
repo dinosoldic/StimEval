@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
 import { LeftArrow } from "../constants/svgFiles";
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { saveConfig, type ConfigData } from "./utils/ConfigManager";
+import { saveConfig } from "./utils/ConfigManager";
 import ShowPreview from "./utils/ShowPreview";
-
-interface ConfigScreenProps {
-  onMainScreen: () => void;
-  onPresentationScreen: () => void;
-  setSavePath: (path: string) => void;
-}
-
-interface ResponseTypes {
-  name: string;
-  n: number;
-  res: string[];
-}
+import type {
+  ConfigData,
+  ConfigScreenProps,
+  ResponseTypes,
+} from "@/types/StimEvalTypes";
 
 const ConfigScreen = ({
   onMainScreen,
@@ -59,8 +52,6 @@ const ConfigScreen = ({
     setImgWInput(val); // allow typing freely
     const num = Number(val);
     if (!isNaN(num)) setImgW(num); // update numeric state only if valid
-    // reset save and force preview
-    setCanSave(false);
   };
 
   const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,8 +59,6 @@ const ConfigScreen = ({
     setImgHInput(val);
     const num = Number(val);
     if (!isNaN(num)) setImgH(num);
-    // reset save and force preview
-    setCanSave(false);
   };
 
   const selectFiles = async () => {
@@ -83,9 +72,6 @@ const ConfigScreen = ({
       ],
     });
     if (selected) setMediaPaths(selected);
-
-    // reset save and force preview
-    setCanSave(false);
   };
 
   const handleNResChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,9 +96,6 @@ const ConfigScreen = ({
       }
       return prev;
     });
-
-    // reset save and force preview
-    setCanSave(false);
   };
 
   const handleNameChange = (index: number, value: string) => {
@@ -121,9 +104,6 @@ const ConfigScreen = ({
       newArr[index].name = value;
       return newArr;
     });
-
-    // reset save and force preview
-    setCanSave(false);
   };
 
   const handleNChange = (index: number, value: string) => {
@@ -138,9 +118,6 @@ const ConfigScreen = ({
       );
       return newArr;
     });
-
-    // reset save and force preview
-    setCanSave(false);
   };
 
   const handleResChange = (
@@ -153,9 +130,6 @@ const ConfigScreen = ({
       newArr[groupIndex].res[resIndex] = value;
       return newArr;
     });
-
-    // reset save and force preview
-    setCanSave(false);
   };
 
   // set media type
@@ -278,6 +252,11 @@ const ConfigScreen = ({
     if (!isSaved) return;
     onPresentationScreen();
   };
+
+  // update save on any var change
+  useEffect(() => {
+    setCanSave(false);
+  }, [imgWInput, imgHInput, mediaPaths, nResInput, nResInput, responses]);
 
   //// styles
   const inputBoxStyles = "flex justify-between gap-8 mb-4";
@@ -413,7 +392,6 @@ const ConfigScreen = ({
                     checked={randomize}
                     onChange={() => {
                       setRandomize((prev) => !prev);
-                      setCanSave(false);
                     }}
                     className="w-6 h-6 rounded-md shadow-none accent-blue-300 cursor-pointer"
                   />
@@ -435,7 +413,6 @@ const ConfigScreen = ({
                   onClick={() => {
                     setMediaPaths([]);
                     setMediaTypes([]);
-                    setCanSave(false);
                   }}
                 >
                   Clear Selected Media

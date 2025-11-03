@@ -7,26 +7,7 @@ import {
   readFile,
   writeTextFile,
 } from "@tauri-apps/plugin-fs";
-
-export interface ConfigData {
-  bgcolor: string;
-  imgw: number;
-  imgh: number;
-  nres: number;
-  responses: {
-    name: string;
-    n: number;
-    res: string[];
-  }[];
-  mediapaths: string[];
-  mediatypes: string[];
-  rand: boolean;
-}
-
-export interface UserResponses {
-  image: string;
-  res: { name: string; val: string }[];
-}
+import type { ConfigData, UserResponses } from "@/types/StimEvalTypes";
 
 // MIME resolver
 function getMimeType(path: string): string {
@@ -129,9 +110,19 @@ export async function saveData(
   }
 
   // Build row-wise CSV
-  const csvRows = [["Media Name", ...userRes[0].res.map((r) => r.name)]];
+  const csvRows = [
+    [
+      "Media Name",
+      ...userRes[0].res.map((r) =>
+        r.name.replaceAll(",", "_").replaceAll(";", "_")
+      ),
+    ],
+  ];
   userRes.forEach((imgRes) => {
-    csvRows.push([imgRes.image, ...imgRes.res.map((r) => r.val)]);
+    csvRows.push([
+      imgRes.image.replaceAll(",", "_").replaceAll(";", "_"),
+      ...imgRes.res.map((r) => r.val),
+    ]);
   });
 
   const csvContent = csvRows.map((row) => row.join(",")).join("\n");

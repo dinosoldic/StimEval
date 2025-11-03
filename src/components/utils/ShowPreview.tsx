@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
-import { loadMedia, type ConfigData } from "./ConfigManager";
+import { loadMedia } from "./ConfigManager";
 import Loader from "./Loader";
-
-interface ShowPreviewProps {
-  onAccept: () => void;
-  onCancel: () => void;
-  data: ConfigData | null;
-}
+import type { ShowPreviewProps } from "@/types/StimEvalTypes";
 
 const ShowPreview = ({ onAccept, onCancel, data }: ShowPreviewProps) => {
   if (!data) return;

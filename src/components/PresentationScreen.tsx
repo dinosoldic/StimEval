@@ -1,19 +1,12 @@
 import { useEffect, useState } from "react";
 import { save, message, confirm } from "@tauri-apps/plugin-dialog";
 import Loader from "./utils/Loader";
-import {
-  loadConfig,
-  loadMedia,
-  saveData,
-  type ConfigData,
-  type UserResponses,
-} from "./utils/ConfigManager";
-
-interface PresentationScreenProps {
-  onMainScreen: () => void;
-  setSavePath: (path: string) => void;
-  savePath: string;
-}
+import { loadConfig, loadMedia, saveData } from "./utils/ConfigManager";
+import type {
+  ConfigData,
+  PresentationScreenProps,
+  UserResponses,
+} from "@/types/StimEvalTypes";
 
 const PresentationScreen = ({
   onMainScreen,

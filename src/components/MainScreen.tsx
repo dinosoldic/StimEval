@@ -1,7 +1,4 @@
-interface MainScreenProps {
-  onNewConfig: () => void;
-  onLoadConfig: () => void;
-}
+import type { MainScreenProps } from "@/types/StimEvalTypes";
 
 const MainScreen = ({ onNewConfig, onLoadConfig }: MainScreenProps) => {
   // styles
