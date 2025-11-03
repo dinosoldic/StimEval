@@ -68,10 +68,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate checksums
+        shell: bash
         run: |
           cd src-tauri/target/release/bundle || exit 1
-          find . -type f \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.deb" -o -name "*.msi" \) \
-            -exec sha256sum {} \; > SHA256SUMS.txt
+          if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
+            find . -type f \( -name "*.exe" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.deb" -o -name "*.msi" \) \
+              -exec sha256sum {} \; > SHA256SUMS.txt
+          else
+            pwsh -Command "
+              Get-ChildItem -Recurse -Include *.exe,*.AppImage,*.dmg,*.deb,*.msi |
+              ForEach-Object {
+                \$hash = Get-FileHash \$_.FullName -Algorithm SHA256
+                \"\$([string]\$hash.Hash)  \$([string]\$_.FullName)\" | Out-File -Append SHA256SUMS.txt
+              }
+            "
+          fi
           cat SHA256SUMS.txt
 
       - name: Upload checksums to release
