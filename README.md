@@ -14,9 +14,9 @@ Latest builds are available here:
 
 | Platform | File | Download |
 |-----------|------|-----------|
-| Windows | `.exe` installer | [Download](https://github.com/dinosoldic/StimEval/releases/download/v1.0.0/StimEval_1.0.0_x64-setup_windows.exe) |
-| macOS (Apple Silicon) | `.dmg` image | [Download](https://github.com/dinosoldic/StimEval/releases/download/v1.0.0/StimEval_1.0.0_aarch64_darwin.dmg) |
-| Linux | `.AppImage` package | [Download](https://github.com/dinosoldic/StimEval/releases/download/v1.0.0/StimEval_1.0.0_amd64_linux.AppImage) |
+| Windows | `.exe` installer | [Download](https://github.com/dinosoldic/StimEval/releases/download/v1.1.0/StimEval_1.1.0_x64-setup_windows.exe) |
+| macOS (Apple Silicon) | `.dmg` image | [Download](https://github.com/dinosoldic/StimEval/releases/download/v1.1.0/StimEval_1.1.0_aarch64_darwin.dmg) |
+| Linux | `.AppImage` package | [Download](https://github.com/dinosoldic/StimEval/releases/download/v1.1.0/StimEval_1.1.0_amd64_linux.AppImage) |
 
 If any link is unavailable, check the [latest release page](https://github.com/dinosoldic/StimEval/releases/latest) directly.
 
