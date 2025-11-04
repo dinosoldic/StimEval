@@ -1,6 +1,16 @@
 import type { MainScreenProps } from "@/types/StimEvalTypes";
+import { useEffect } from "react";
 
-const MainScreen = ({ onNewConfig, onLoadConfig }: MainScreenProps) => {
+const MainScreen = ({
+  onNewConfig,
+  onLoadConfig,
+  setSavePath,
+}: MainScreenProps) => {
+  // each time main menu is loaded reset path to avoid conflicts
+  useEffect(() => {
+    setSavePath("");
+  }, []);
+
   // styles
   const buttonStyle =
     "px-8 py-1 border rounded-md bg-blue-200 hover:bg-blue-300 font-medium cursor-pointer";
