@@ -43,6 +43,7 @@ const App = () => {
         <MainScreen
           onNewConfig={() => setScreen("config")}
           onLoadConfig={() => setScreen("presentation")}
+          setSavePath={setSavePath}
         />
       )}
 

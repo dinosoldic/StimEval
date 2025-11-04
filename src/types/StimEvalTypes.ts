@@ -2,6 +2,7 @@
 export interface MainScreenProps {
   onNewConfig: () => void;
   onLoadConfig: () => void;
+  setSavePath: (path: string) => void;
 }
 
 export interface ConfigScreenProps {
