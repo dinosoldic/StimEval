@@ -27,6 +27,17 @@ If any link is unavailable, check the [latest release page](https://github.com/d
 
 ---
 
+## Guides
+
+For detailed instructions on how to use StimEval, see the following guides:  
+
+| Language | Download |
+|----------|----------|
+| English | [Download](public/docs/userguide_en.pdf) |
+| Español | [Download](public/docs/userguide_es.pdf) |
+
+---
+
 ## Features
 
 - Presentation of visual stimuli  
@@ -40,14 +51,3 @@ If any link is unavailable, check the [latest release page](https://github.com/d
 ## License
 
 Licensed under the **MIT License**.
-
----
-
-## Guides
-
-For detailed instructions on how to use StimEval, see the following guides:  
-
-| Language | Download |
-|----------|----------|
-| English | [Download](public/docs/userguide_en.pdf) |
-| Español | [Download](public/docs/userguide_es.pdf) |
