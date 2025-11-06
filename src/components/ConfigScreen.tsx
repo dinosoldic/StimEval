@@ -392,6 +392,7 @@ const ConfigScreen = ({
                     checked={randomize}
                     onChange={() => {
                       setRandomize((prev) => !prev);
+                      setCanSave(false);
                     }}
                     className="w-6 h-6 rounded-md shadow-none accent-blue-300 cursor-pointer"
                   />
