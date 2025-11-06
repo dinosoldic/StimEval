@@ -66,6 +66,7 @@ jobs:
           includeDebug: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUST_LOG: debug
 
       - name: Generate checksums
         shell: bash
