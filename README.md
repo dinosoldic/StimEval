@@ -9,7 +9,7 @@ Built with [Tauri](https://tauri.app), [React](https://react.dev), and [Rust](ht
 This build is currently unsigned, so some operating systems may display a warning such as “Possible dangerous app” or “Unknown publisher” when launching the installer.
 This is normal for open-source software without a paid code-signing certificate.
 You can safely proceed by selecting “More info → Run anyway.”
-The app is fully open-source, and its integrity can be verified using the attached SHA256 checksums.
+The app is fully open-source.
 
 ---
 
